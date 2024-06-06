@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
+#include <stdlib.h>
 
 #define FIFO_NAME "myfifo"
 
@@ -25,6 +26,14 @@ void sigusr2_handler(int sig){
     }
 }
 
+// add sigpipe handler:
+
+void sigpipe_handler(int sig) {
+    printf("Reader closed. Program exit\n");
+        close(fd);
+        exit(1);
+
+}
 
 
 int main(void)
@@ -44,6 +53,7 @@ int main(void)
 
     signal(SIGUSR1, sigusr1_handler);
     signal(SIGUSR2, sigusr2_handler);
+    signal(SIGPIPE, sigpipe_handler);
 
 
     char s[300];
