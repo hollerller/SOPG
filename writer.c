@@ -12,13 +12,17 @@ int fd;
 
 void sigusr1_handler(int sig){
     char *msg = "SIGN:1\n";
-    write(fd, msg, strlen(msg));
+    if (write(fd, msg, strlen(msg)) == -1) {
+        perror("Error writing to FIFO");
+    }
 
 }
 
 void sigusr2_handler(int sig){
     char *msg = "SIGN:2\n";
-    write(fd, msg, strlen(msg));
+    if (write(fd, msg, strlen(msg)) == -1){
+        perror("Error writing to FIFO");
+    }
 }
 
 
@@ -26,7 +30,7 @@ void sigusr2_handler(int sig){
 int main(void)
 {
     if (mkfifo(FIFO_NAME, 0666) == -1) {
-        perror("Error creating FIFO\n");
+        perror("Error creating FIFO");
     }
     
     printf("Writer PID %d\n", getpid());
@@ -48,7 +52,13 @@ int main(void)
     while (1) {
 
         char text[300];
-        fgets(s, 300, stdin);
+
+        if (fgets(s, 300, stdin) == NULL) {
+            printf("EOF detected, closing file...\n");
+            break;
+        }
+
+
         strcpy(text, "DATA:");
         strcat(text, s);
 
@@ -56,7 +66,11 @@ int main(void)
             perror("write");
         else {
             printf("writer: wrote %d bytes\n", num);
-            write(fd, text, strlen(text));
+            
+            
+           if ( write(fd, text, strlen(text)) == -1 ) {
+            perror("Error writing to FIFO\n");
+           }
             
              }
         }

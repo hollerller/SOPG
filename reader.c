@@ -9,7 +9,10 @@
 
 int main(void)
 {
-    mkfifo(FIFO_NAME, 0666);
+
+        if (mkfifo(FIFO_NAME, 0666) == -1) {
+        perror("Error creating FIFO");
+    }
 
     
     printf("waiting for writers...\n");
